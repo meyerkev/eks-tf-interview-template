@@ -87,6 +87,16 @@ module "eks" {
       }
     }
   }
+  cluster_security_group_additional_rules = {
+    eks_cluster = {
+      type = "ingress"
+      description              = "Never do this in production"
+      from_port                = 0
+      to_port                  = 65535
+      protocol                 = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
 }
 //*/
 
@@ -102,6 +112,15 @@ resource "aws_security_group" "remote_access" {
   name_prefix = "eks-remote-access"
   description = "Allow remote SSH access"
   vpc_id      = module.vpc.vpc_id
+
+  ingress {
+    description = "SSH access"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    # TODO: This is also bad and I would never do this in production
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     description = "SSH access"
