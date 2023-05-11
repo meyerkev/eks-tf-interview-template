@@ -12,3 +12,7 @@ variable "vpc_name" {
     type = string
     default = "eks-vpc"
 }
+
+variable "interviewee_name" {
+    type = string
+}

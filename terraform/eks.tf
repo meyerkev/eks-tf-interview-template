@@ -42,7 +42,7 @@ module "eks" {
   version = "~> 19.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.24"
+  cluster_version = "1.26"
 
   cluster_endpoint_public_access  = true
   create_iam_role = true
@@ -114,7 +114,7 @@ resource "aws_security_group" "remote_access" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    description = "SSH access"
+    description = "All access"
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"

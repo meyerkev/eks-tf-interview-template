@@ -1,0 +1,18 @@
+regions:
+- us-east-1
+- us-east-2
+- global
+
+account-blacklist:
+- "000000000000"
+
+accounts:
+  "386145735201":
+    filters:
+      IAMUser:
+      - "meyerkev"
+      IAMUserAccessKey:
+      - "meyerkev -> AKIAVT2AUKIQZWDT6GNH"
+      IAMUserPolicyAttachment:
+      - "meyerkev -> AdministratorAccess"
+

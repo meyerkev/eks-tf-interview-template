@@ -4,7 +4,7 @@
 terraform {
   required_version = "1.4.6"
   backend "local" {
-    path = "arena.tfstate"
+    path = "test-interview.tfstate"
   }
 
   required_providers {
