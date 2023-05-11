@@ -27,11 +27,3 @@ EOF
 resource "aws_iam_access_key" "interviewee_key" {
     user = iam_user.interviewee.name
 }
-
-output "interviewee_access_key" {
-    value = aws_iam_access_key.interviewee_key.id
-}
-
-output "interviewee_secret_key" {
-    value = aws_iam_access_key.interviewee_key.secret
-}
