@@ -7,7 +7,7 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "4"
 
-  name = "my-vpc"
+  name = var.vpc_name
   cidr = local.vpc_cidr
 
   azs             = local.availability_zones
@@ -41,7 +41,7 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
-  cluster_name    = "my-cluster"
+  cluster_name    = var.cluster_name
   cluster_version = "1.24"
 
   cluster_endpoint_public_access  = true
