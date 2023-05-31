@@ -42,3 +42,18 @@ variable "target_architecture" {
     type = string
     default = null
 }
+
+variable "min_nodes" {
+    type = number
+    default = 1
+}
+
+variable "max_nodes" {
+    type = number
+    default = 10
+}
+
+variable "desired_nodes" {
+    type = number
+    default = 3
+}

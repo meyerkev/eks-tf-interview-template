@@ -12,7 +12,7 @@ accounts:
       IAMUser:
       - "meyerkev"
       IAMUserAccessKey:
-      - "meyerkev -> AKIAVT2AUKIQZWDT6GNH"
+      - "meyerkev -> AIDAVT2AUKIQQQKI32I5K"
       IAMUserPolicyAttachment:
       - "meyerkev -> AdministratorAccess"
 

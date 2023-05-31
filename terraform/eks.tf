@@ -108,9 +108,9 @@ module "eks" {
   eks_managed_node_groups = {
     # Default node group - as provided by AWS EKS
     default_node_group = {
-      min_size     = 1
-      max_size     = 10
-      desired_size = 3
+      min_size     = var.min_nodes
+      max_size     = var.max_nodes
+      desired_size = var.desired_nodes
       # By default, the module creates a launch template to ensure tags are propagated to instances, etc.,
       # so we need to disable it to use the default template provided by the AWS EKS managed node group service
       use_custom_launch_template = false
@@ -177,4 +177,10 @@ resource "aws_security_group" "remote_access" {
   }
 
   tags = { Name = "eks-remote" }
+}
+
+resource "aws_ssm_parameter" "oidc_provider" {
+  name = "/eks/${var.cluster_name}/oidc_provider"
+  type = "String"
+  value = module.eks.oidc_provider_arn
 }
