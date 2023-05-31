@@ -3,6 +3,9 @@ locals {
   # This is sort of weird and I could see myself rewriting it in the future
   # If you set an instance type, it will use that and then look up the architecture
   # BUT if you set a target architecture, it will use that and then look up the instance type of that architecture and then re-lookup the architecture
+  #
+  # Laptop -> Architecture lookup -> default instance type lookup -> Architecture lookup
+  #
   # And if you don't set either, it will look up the architecture of the machine you're running on so that local Docker builds work by default
   # But what this means is that you can totally say "ARM.  I am ARM", pick an x64 instance type, and get an x64 cluster
   # By accident
