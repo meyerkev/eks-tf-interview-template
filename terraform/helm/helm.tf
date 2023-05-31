@@ -2,11 +2,13 @@ locals {
     namespaces = {
         "aws-load-balancer-controller" = "aws-load-balancer-controller"
         "external-dns" = "external-dns"
+        "cluster-autoscaler" = "kube-system"
     }
 
     service_accounts = {
         "aws-load-balancer-controller" = "aws-load-balancer-controller"
         "external-dns" = "external-dns"
+        "cluster-autoscaler" = "cluster-autoscaler"
     }
 }
 
@@ -15,7 +17,7 @@ data "aws_ssm_parameter" "oidc_provider" {
 }
 
 resource "kubernetes_namespace" "namespaces" {
-    for_each = local.namespaces
+    for_each = {for namespace, value in local.namespaces: namespace => value if value != "kube-system" }
     metadata {
         name = each.value
     }
@@ -70,7 +72,7 @@ resource "helm_release" "aws-load-balancer-controller" {
     name       = "aws-load-balancer-controller"
     repository = "https://aws.github.io/eks-charts"
     chart      = "aws-load-balancer-controller"
-    namespace  = "aws-load-balancer-controller"
+    namespace  = local.namespaces["aws-load-balancer-controller"]
     version    = "1.5.3"
     
     set {
@@ -94,11 +96,24 @@ resource "helm_release" "external-dns" {
     name = "external-dns"
     repository = "https://charts.bitnami.com/bitnami"
     chart = "external-dns"
-    namespace = "external-dns"
+    namespace = local.namespaces["external-dns"]
     version = "6.20.3"
 
     set {
         name = "serviceAccount.create"
         value = "false"
+    }
+}
+
+resource "helm_release" "cluster-autoscaler" {
+    name = "cluster-autoscaler"
+    repository = "https://kubernetes.github.io/autoscaler"
+    chart = "cluster-autoscaler"
+    namespace = local.namespaces["cluster-autoscaler"]
+    version = "9.29.0"
+
+    set {
+        name = "autoDiscovery.clusterName"
+        value = var.eks_cluster_name
     }
 }
