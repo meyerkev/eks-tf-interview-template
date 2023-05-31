@@ -3,5 +3,5 @@ output "interviewee_access_key" {
 }
 
 output "interviewee_secret_key" {
-    value = aws_iam_access_key.interviewee_key.secret
+    value = nonsensitive(aws_iam_access_key.interviewee_key.secret)
 }
