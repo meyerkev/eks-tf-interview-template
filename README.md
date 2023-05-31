@@ -8,7 +8,7 @@ terraform init
 terraform apply -var "interviewee_name=<you>"
 ```
 
-That will give you a cluster namne and a keypair for the interviewee.  
+That will give you a cluster name and a keypair for the interviewee.  
 
 The key pair will give then the ability to describe the cluster and update their local kubeconfig
 
