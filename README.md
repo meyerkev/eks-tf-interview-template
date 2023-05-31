@@ -21,3 +21,10 @@ cd helm/
 terraform init
 terraform apply
 ```
+
+## Cleaning up when done
+
+```
+# Validate that your access key is in the aws-nuke ignorelist
+aws-nuke --config aws-nuke.yaml
+```
