@@ -1,59 +1,59 @@
 variable "region" {
-    type = string
-    default = "us-east-1"
+  type    = string
+  default = "us-east-1"
 }
 
 variable "cluster_name" {
-    type = string
-    default = "eks-cluster"
+  type    = string
+  default = "eks-cluster"
 }
 
 variable "vpc_name" {
-    type = string
-    default = "eks-vpc"
+  type    = string
+  default = "eks-vpc"
 }
 
 variable "vpc_cidr" {
-    type = string
-    default = "10.0.0.0/16"
+  type    = string
+  default = "10.0.0.0/16"
 }
 
 variable "interviewee_name" {
-    type = string
+  type = string
 }
 
 variable "cluster_k8s_version" {
-    type = string
-    default = "1.27"
+  type    = string
+  default = "1.27"
 }
 
 variable "public_nodes" {
-    type = bool
-    default = true
-    description = "If true, we put our nodes in public subnets for easier access"
+  type        = bool
+  default     = true
+  description = "If true, we put our nodes in public subnets for easier access"
 }
 
 variable "eks_node_instance_type" {
-    type = string
-    default = "m6g.large"
+  type    = string
+  default = "m6g.large"
 }
 
 variable "target_architecture" {
-    type = string
-    default = null
+  type    = string
+  default = null
 }
 
 variable "min_nodes" {
-    type = number
-    default = 1
+  type    = number
+  default = 1
 }
 
 variable "max_nodes" {
-    type = number
-    default = 10
+  type    = number
+  default = 10
 }
 
 variable "desired_nodes" {
-    type = number
-    default = 3
+  type    = number
+  default = 3
 }

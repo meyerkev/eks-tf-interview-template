@@ -17,7 +17,7 @@ The key pair will give then the ability to describe the cluster and update their
 This module will install the Helm charts
 
 ```
-cd helm/
+cd terraform/helm/
 terraform init
 terraform apply
 ```

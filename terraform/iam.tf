@@ -1,14 +1,14 @@
 resource "aws_iam_user" "interviewee" {
-    name = var.interviewee_name
-    path = "/"
+  name = var.interviewee_name
+  path = "/"
 }
 
 # Write a policy that lets us get the kubeconfig for the cluster and attach it to our user
 resource "aws_iam_user_policy" "kubeconfig" {
-    name = "kubeconfig"
-    user = aws_iam_user.interviewee.name
+  name = "kubeconfig"
+  user = aws_iam_user.interviewee.name
 
-    policy = <<EOF
+  policy = <<EOF
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -29,5 +29,5 @@ EOF
 
 # Add an IAM keypair for the interviewee
 resource "aws_iam_access_key" "interviewee_key" {
-    user = aws_iam_user.interviewee.name
+  user = aws_iam_user.interviewee.name
 }
