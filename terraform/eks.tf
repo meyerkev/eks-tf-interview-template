@@ -11,6 +11,8 @@ locals {
   # By accident
   target_architecture    = var.target_architecture == null ? data.external.architecture[0].result.architecture : var.target_architecture
   eks_node_instance_type = var.eks_node_instance_type != null ? var.eks_node_instance_type : local.target_architecture == "arm64" ? "m6g.large" : "m6i.large"
+
+  add_user = strcontains(data.aws_caller_identity.current.arn, ":user/")
 }
 
 # This is a wee bit of a hack and requires being on something Linuxy
@@ -24,11 +26,13 @@ data "aws_ec2_instance_type" "eks_node_instance_type" {
   instance_type = local.eks_node_instance_type
 }
 
+data "aws_caller_identity" "current" {}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "4"
+  version = "~>5.1.2"
 
-  name = var.vpc_name
+  name = var.vpc_name == null ? "${var.cluster_name}-eks-vpc" : var.vpc_name
   cidr = var.vpc_cidr
 
   azs = local.availability_zones
@@ -70,14 +74,22 @@ module "eks" {
   cluster_endpoint_public_access = true
   create_iam_role                = true
 
-  aws_auth_users = [
+  manage_aws_auth_configmap = true
+  aws_auth_users = concat(var.interviewee_name != null ? [
     # Once again, this might not be ideal except in an interview setting
     {
-      userarn  = aws_iam_user.interviewee.arn
-      username = aws_iam_user.interviewee.name
+      userarn  = aws_iam_user.interviewee[0].arn
+      username = aws_iam_user.interviewee[0].name
       groups   = ["system:masters"]
     }
-  ]
+  ] : [],
+  local.add_user ? [
+    {
+      userarn  = data.aws_caller_identity.current.arn
+      username = data.aws_caller_identity.current.user_id
+      groups   = ["system:masters"]
+    }
+  ] : [])
 
   cluster_addons = {
     coredns = {

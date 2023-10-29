@@ -10,7 +10,7 @@ variable "cluster_name" {
 
 variable "vpc_name" {
   type    = string
-  default = "eks-vpc"
+  default = null
 }
 
 variable "vpc_cidr" {
@@ -24,7 +24,7 @@ variable "interviewee_name" {
 
 variable "cluster_k8s_version" {
   type    = string
-  default = "1.27"
+  default = "1.28"
 }
 
 variable "public_nodes" {
@@ -35,7 +35,7 @@ variable "public_nodes" {
 
 variable "eks_node_instance_type" {
   type    = string
-  default = "m6g.large"
+  default = null  # "m6g.large"
 }
 
 variable "target_architecture" {
