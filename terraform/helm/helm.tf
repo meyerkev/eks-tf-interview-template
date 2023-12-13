@@ -50,12 +50,12 @@ module "aws-load-balancer-irsa" {
       namespace_service_accounts = ["${local.namespaces.aws-load-balancer-controller}:${local.service_accounts.aws-load-balancer-controller}"]
     }
   }
+  role_name = "aws-load-balancer-controller-${var.eks_cluster_name}-role"
   depends_on = [ kubernetes_service_account.service_accounts["aws-load-balancer-controller"] ]
 }
 
 module "external-dns-irsa" {
     source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-    
     attach_external_dns_policy = true
     
     oidc_providers = {
@@ -64,6 +64,7 @@ module "external-dns-irsa" {
         namespace_service_accounts = ["${local.namespaces.external-dns}:${local.service_accounts.external-dns}"]
         }
     }
+    role_name = "external-dns-${var.eks_cluster_name}-role"
     depends_on = [ kubernetes_service_account.service_accounts["external-dns"] ]
 }
 

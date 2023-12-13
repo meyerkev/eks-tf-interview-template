@@ -16,3 +16,10 @@ accounts:
       IAMUserPolicyAttachment:
       - "meyerkev -> AdministratorAccess"
 
+resource-types:
+  excludes:
+    - IAMUserAccessKey
+    - IAMUser
+    - S3Bucket
+    # I have no idea what this is?
+    - OSPackage
