@@ -1,6 +1,24 @@
 # eks-tf-interview-template
 EKS takes forever to come up, so here's a module to make EKS 
 
+## Install prerequisites
+
+1. On OSX or Linux with brew: 
+
+```
+brew install aws-cli tfenv
+cd terraform/
+tfenv install
+```
+
+On Linux, I still recommend [tfenv](https://github.com/tfutils/tfenv)
+
+2. configure aws with an IAM keypair
+
+```
+aws configure
+```
+
 ## Initialize Terraform
 
 1. Make an S3 bucket in the console
