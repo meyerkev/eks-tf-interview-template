@@ -2,7 +2,7 @@
 # Would I do this under any circumstances if I had more than 3 hours?  
 ## No
 terraform {
-  required_version = "1.4.6"
+  required_version = "1.8.3"
   # Really you ought to clean this up and use a remote backend, but this is an interview and I spin this up A LOT, then run aws-nuke on the account
   backend "local" {
     path = "test-interview-helm.tfstate"
@@ -48,5 +48,9 @@ provider "helm" {
       args        = ["eks", "get-token", "--region", var.aws_region, "--cluster-name", var.eks_cluster_name]
       command     = "aws"
     }
+  }
+
+  experiments {
+    # manifest = true
   }
 }

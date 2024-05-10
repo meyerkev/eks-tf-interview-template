@@ -59,7 +59,7 @@ terraform apply
 ```
 
 ## Setup the interviewee
-In the cluster module, there will be a variety of outputs.  If you lost them, no worries; Just run `terraform apply` again to get a print-out of the outputs.  
+In the cluster module, there will be a variety of outputs.  If you lost them, no worries; Just run `terraform apply` again or `terraform outputs` to get a print-out of the outputs.  
 
 Your outputs will be something like this: 
 
@@ -138,5 +138,6 @@ or if it's an account you really really do not want to get charged for:
 
 ```
 # Validate that your access key is in the aws-nuke ignorelist
+brew install aws-nuke
 aws-nuke --config aws-nuke.yaml
 ```

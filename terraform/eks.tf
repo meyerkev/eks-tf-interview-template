@@ -68,16 +68,9 @@ module "vpc" {
   }
 }
 
-//*
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "~> 19.0"
-
-  cluster_name    = var.cluster_name
-  cluster_version = var.cluster_k8s_version
-
-  cluster_endpoint_public_access = true
-  create_iam_role                = true
+module "eks-auth" {
+  source  = "terraform-aws-modules/eks/aws//modules/aws-auth"
+  version = "~> 20.0"
 
   manage_aws_auth_configmap = true
   aws_auth_users = concat(var.interviewee_name != null ? [
@@ -95,6 +88,27 @@ module "eks" {
       groups   = ["system:masters"]
     }
   ] : [])
+  
+  depends_on = [ null_resource.sleep ]
+}
+
+# Sleep 30 seconds to allow the EKS cluster to be created
+resource "null_resource" "sleep" {
+  provisioner "local-exec" {
+    command = "sleep 30"
+  }
+  depends_on = [ module.eks ]
+}
+
+//*
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.10"
+
+  cluster_name    = var.cluster_name
+  cluster_version = var.cluster_k8s_version
+  cluster_endpoint_public_access = true
+  enable_cluster_creator_admin_permissions = true
 
   cluster_addons = {
     coredns = {
@@ -120,6 +134,11 @@ module "eks" {
     ami_type                   = contains(data.aws_ec2_instance_type.eks_node_instance_type.supported_architectures, "arm64") ? "AL2_ARM_64" : "AL2_x86_64"
     instance_types             = [local.eks_node_instance_type]
     iam_role_attach_cni_policy = true
+
+    tags = {
+      "k8s.io/cluster-autoscaler/enabled" = "true"
+      "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+    }
   }
 
   eks_managed_node_groups = {
@@ -138,6 +157,11 @@ module "eks" {
       remote_access = {
         ec2_ssh_key               = module.key_pair.key_pair_name
         source_security_group_ids = [aws_security_group.remote_access.id]
+      }
+
+      tags = {
+        "k8s.io/cluster-autoscaler/enabled" = "true"
+        "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
       }
     }
   }
