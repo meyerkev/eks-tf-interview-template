@@ -35,6 +35,9 @@ resource "kubernetes_service_account" "service_accounts" {
     metadata {
         name      = each.value
         namespace = local.namespaces[each.key]
+        annotations = {
+          "eks.amazonaws.com/role-arn" = local.irsa_roles[each.key]
+        }
     }
     depends_on = [ kubernetes_namespace.namespaces ]
 }
@@ -58,8 +61,6 @@ module "aws-load-balancer-irsa" {
     }
   }
   role_name = "aws-load-balancer-controller-${var.eks_cluster_name}-role"
-  depends_on = [ kubernetes_service_account.service_accounts["aws-load-balancer-controller"] ]
-  allow_self_assume_role = true
 }
 
 module "external-dns-irsa" {
@@ -73,7 +74,6 @@ module "external-dns-irsa" {
         }
     }
     role_name = "external-dns-${var.eks_cluster_name}-role"
-    depends_on = [ kubernetes_service_account.service_accounts["external-dns"] ]
 }
 
 module "aws-cluster-autoscaler-irsa" {
@@ -89,20 +89,6 @@ module "aws-cluster-autoscaler-irsa" {
         }
     }
     role_name = "aws-cluster-autoscaler-${var.eks_cluster_name}-role"
-    depends_on = [ kubernetes_service_account.service_accounts ]
-}
-
-resource "kubernetes_annotations" "autoscaler_hack" {
-    for_each = local.service_accounts
-    api_version = "v1"
-    kind = "ServiceAccount"
-    metadata {
-        name = each.value
-        namespace = local.namespaces[each.key]
-    }
-    annotations = {
-        "eks.amazonaws.com/role-arn" = local.irsa_roles[each.key]
-    }
 }
 
 resource "helm_release" "aws-load-balancer-controller" {
@@ -128,7 +114,7 @@ resource "helm_release" "aws-load-balancer-controller" {
         name  = "serviceAccount.name"
         value = local.service_accounts.aws-load-balancer-controller
     }
-    depends_on = [ module.aws-load-balancer-irsa, kubernetes_service_account.service_accounts["aws-load-balancer-controller"] ]
+    depends_on = [ kubernetes_service_account.service_accounts ]
 }
 
 resource "helm_release" "external-dns" {
@@ -149,6 +135,8 @@ resource "helm_release" "external-dns" {
         name = "serviceAccount.name"
         value = local.service_accounts.external-dns
     }
+
+    depends_on = [ kubernetes_service_account.service_accounts ]
 }
 
 resource "helm_release" "cluster-autoscaler" {
@@ -179,8 +167,7 @@ resource "helm_release" "cluster-autoscaler" {
         name = "rbac.serviceAccount.name"
         value = local.service_accounts.cluster-autoscaler
     }
-
-    depends_on = [ module.aws-cluster-autoscaler-irsa, kubernetes_service_account.service_accounts["cluster-autoscaler"] ]
+    depends_on = [ kubernetes_service_account.service_accounts ]
 }
 
 

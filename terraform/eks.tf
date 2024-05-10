@@ -103,7 +103,7 @@ resource "null_resource" "sleep" {
 //*
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.10"
+  version = "~>20.10"
 
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_k8s_version
