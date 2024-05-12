@@ -24,7 +24,7 @@ variable "interviewee_name" {
 
 variable "cluster_k8s_version" {
   type    = string
-  default = "1.28"
+  default = "1.29"
 }
 
 variable "public_nodes" {
