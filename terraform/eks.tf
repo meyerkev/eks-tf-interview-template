@@ -15,7 +15,7 @@ locals {
   # But what this means is that you can totally say "ARM.  I am ARM", pick an x64 instance type, and get an x64 cluster
   # By accident
   target_architecture    = var.target_architecture == null ? data.external.architecture[0].result.architecture : var.target_architecture
-  eks_node_instance_type = var.eks_node_instance_type != null ? var.eks_node_instance_type : local.target_architecture == "arm64" ? "m6g.large" : "m6i.large"
+  eks_node_instance_type = var.eks_node_instance_type != null ? var.eks_node_instance_type : local.target_architecture == "arm64" ? "m7g.large" : "m7a.large"
 
   add_user = strcontains(data.aws_caller_identity.current.arn, ":user/")
 }
