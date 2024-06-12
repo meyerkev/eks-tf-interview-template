@@ -6,7 +6,7 @@ EKS takes forever to come up, so here's a module to make EKS
 1. On OSX or Linux with brew: 
 
 ```
-brew install aws-cli tfenv
+brew install awscli tfenv
 cd terraform/
 tfenv install
 ```
