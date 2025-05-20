@@ -34,7 +34,7 @@ TFSTATE_KEY=<something>.tfvars
 # The region your S3 bucket is in (Default: us-east-2)
 TFSTATE_REGION=us-east-1
 
-cd terraform/
+cd terraform/aws
 
 # Only set the variables you set as env vars
 terraform init \
