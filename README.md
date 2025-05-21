@@ -7,7 +7,7 @@ EKS takes forever to come up, so here's a module to make EKS
 
 ```
 brew install awscli tfenv
-cd terraform/
+cd terraform/aws
 tfenv install
 ```
 
