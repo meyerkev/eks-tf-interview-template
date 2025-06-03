@@ -3,6 +3,7 @@ locals {
         "aws-load-balancer-controller" = "aws-load-balancer-controller"
         "external-dns" = "external-dns"
         "cluster-autoscaler" = "cluster-autoscaler"
+        "metrics-server" = "kube-system"
     }
 
     service_accounts = {
@@ -170,5 +171,17 @@ resource "helm_release" "cluster-autoscaler" {
     depends_on = [ kubernetes_service_account.service_accounts ]
 }
 
+resource "helm_release" "metrics-server" {
+    name = "metrics-server"
+    repository = "https://kubernetes-sigs.github.io/metrics-server"
+    chart = "metrics-server"
+    namespace = local.namespaces["metrics-server"]
+    version = "3.12.2"
+
+    wait = true
+    # If you don't have a namespace named kube-system yet, what are we even doing here kids?
+    create_namespace = false
+
+}
 
 
