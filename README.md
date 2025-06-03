@@ -93,7 +93,7 @@ AWS Secret Access Key [None]: <outputs.interviewee_secret_key>
 Default region name [None]: us-east-1
 Default output format [None]: json
 
-d
+
 # Run this in every new terminal you open
 export AWS_PROFILE=ik-interview
 ```
