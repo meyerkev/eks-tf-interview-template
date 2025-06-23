@@ -139,5 +139,5 @@ or if it's an account you really really do not want to get charged for:
 ```
 # Validate that your access key is in the aws-nuke ignorelist
 brew install aws-nuke
-aws-nuke --config aws-nuke.yaml
+aws-nuke run --config aws-nuke.yaml
 ```
