@@ -176,19 +176,27 @@ If that works, congratulations, your user now has admin-ish powers on the k8s cl
 
 ## Cleaning up when done
 
-Either use 
+Reverse of `zero_to_hero.sh` — destroys aws-helm, then the cluster (incl. interviewee IAM), then the bootstrap ECR:
 
 ```
-terraform destroy -var 'interviewee_name=destroy'
+./scripts/destroy.sh -- <interview-name>
+```
+
+Or by hand:
+
+```
+terraform destroy -var "interviewee_name=destroy"
 
 # Alt, if you customized your cluster
-terraform destroy -var-file tfvars/<my_cluster>.yaml 
+terraform destroy -var-file tfvars/<my_cluster>.yaml
 ```
 
-or if it's an account you really really do not want to get charged for:
+If it's an account you really really do not want to get charged for, the aws-nuke wrapper enforces a dry-run-by-default, then deletes everything (filters keep your IAM user + access key + the S3 state buckets):
 
 ```
-# Validate that your access key is in the aws-nuke ignorelist
-brew install aws-nuke
-aws-nuke run --config aws-nuke.yaml
+brew install aws-nuke               # v3+ (the ekristen fork)
+./scripts/destroy-nuke.sh           # dry run; prints what would be deleted
+./scripts/destroy-nuke.sh --yes     # actually delete
 ```
+
+> **aws-nuke v3.64.x gotcha:** it can stall in an infinite "waiting for removal" retry loop on individual S3 object versions even when nothing is actually blocking the delete (no Object Lock, no MFA Delete). If `Removal requested: 1 waiting` is pinned for several minutes with no progress, kill aws-nuke and bulk-delete versions out-of-band — the destroy-nuke.sh header has a one-liner for this.

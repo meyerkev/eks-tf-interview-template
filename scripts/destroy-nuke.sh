@@ -3,6 +3,20 @@ set -euo pipefail
 
 # Safe wrapper to run aws-nuke with the repo's aws-nuke.yaml
 # Defaults to DRY RUN. Pass --yes to actually delete (adds --no-dry-run --force).
+#
+# Known issue with aws-nuke v3.64.x:
+# It can get stuck in an infinite "waiting for removal" retry loop on a
+# specific S3Object version even when no Object Lock / Legal Hold / MFA
+# Delete is in play and a manual `aws s3api delete-object --version-id <id>`
+# succeeds instantly. If you see "1 waiting" pinned for several minutes
+# with no progress, kill aws-nuke and bulk-delete versions out-of-band:
+#
+#   aws s3api list-object-versions --bucket <bucket> --output json \
+#     | jq -r '(.Versions // []) + (.DeleteMarkers // []) | .[]
+#              | "\(.Key)\t\(.VersionId)"' \
+#     | while IFS=$'\t' read -r k v; do
+#         aws s3api delete-object --bucket <bucket> --key "$k" --version-id "$v"
+#       done
 
 # Run from the repo root so aws-nuke.yaml resolves correctly.
 cd "$(dirname "$0")/.."
