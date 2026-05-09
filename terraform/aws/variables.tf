@@ -32,7 +32,7 @@ variable "cluster_k8s_version" {
 variable "public_nodes" {
   type        = bool
   default     = true
-  description = "If true, we put our nodes in public subnets for easier access"
+  description = "If true (default), put cluster ENIs + nodes in public subnets (interview-friendly: direct SSM/SSH from outside the VPC). If false, use private subnets (production-style; needs NAT egress, which the VPC submodule provides by default)."
 }
 
 variable "eks_node_instance_type" {

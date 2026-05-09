@@ -58,9 +58,12 @@ module "eks" {
   }
 
   vpc_id = var.vpc_id
-  # Public subnets keep the interview cluster friction-free (no VPN). Use
-  # private subnets in production.
-  subnet_ids = var.public_subnet_ids
+  # Place the cluster ENIs and node group in either the public or private
+  # subnet set. Public subnets keep the interview cluster friction-free (no
+  # VPN required); production should use private subnets, which works as
+  # long as the supplied private subnets have NAT egress so nodes can pull
+  # images and reach the EKS control plane.
+  subnet_ids = var.public_nodes ? var.public_subnet_ids : var.private_subnet_ids
 
   # Grant the interviewee admin on the cluster via an EKS access entry.
   # This replaces the old aws-auth ConfigMap mapping.

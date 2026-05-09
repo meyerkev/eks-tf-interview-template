@@ -28,8 +28,14 @@ variable "public_subnet_ids" {
 }
 
 variable "private_subnet_ids" {
-  description = "Private subnet IDs. Tagged for the cluster, but currently not used for node placement (the interview template uses public subnets)."
+  description = "Private subnet IDs. Tagged for the cluster regardless; used for node placement only when var.public_nodes = false."
   type        = list(string)
+}
+
+variable "public_nodes" {
+  description = "If true (default), put the cluster ENIs + node group in public_subnet_ids - nodes get public IPs and SSM/SSH access from outside the VPC works directly. If false, use private_subnet_ids; nodes need NAT egress to pull images and reach the EKS API. kubectl from outside still works either way as long as endpoint_public_access = true (which it is)."
+  type        = bool
+  default     = true
 }
 
 # --- Optional interviewee user --------------------------------------------
