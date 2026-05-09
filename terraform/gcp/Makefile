@@ -3,7 +3,7 @@ PROJECT_ID = pp-development-466213
 REGION = us-central1
 CLUSTER_NAME = gke-cluster
 
-.PHONY: help login setup init plan apply destroy clean status set-quota-project tfenv-install tfenv-use terraform-version
+.PHONY: help login setup init plan apply destroy clean status set-quota-project tenv-install tenv-use terraform-version
 
 help: ## Show this help message
 	@echo "Available targets:"
@@ -25,22 +25,22 @@ setup: login ## Setup GCP project and enable required APIs
 	gcloud services enable iam.googleapis.com
 	@echo "APIs enabled successfully"
 
-tfenv-install: ## Install the required Terraform version using tfenv
-	@echo "Installing Terraform $(shell cat .terraform-version) using tfenv..."
-	tfenv install $(shell cat .terraform-version)
+tenv-install: ## Install the required Terraform version using tenv
+	@echo "Installing Terraform $(shell cat .terraform-version) using tenv..."
+	tenv tf install $(shell cat .terraform-version)
 	@echo "Terraform $(shell cat .terraform-version) installed successfully"
 
-tfenv-use: ## Switch to the required Terraform version using tfenv
+tenv-use: ## Switch to the required Terraform version using tenv
 	@echo "Switching to Terraform $(shell cat .terraform-version)..."
-	tfenv use $(shell cat .terraform-version)
+	tenv tf use $(shell cat .terraform-version)
 	@echo "Now using Terraform: $$(terraform version --json | jq -r '.terraform_version')"
 
 terraform-version: ## Show current Terraform version
 	@echo "Required version: $$(cat .terraform-version)"
 	@echo "Current version: $$(terraform version --json | jq -r '.terraform_version' 2>/dev/null || echo 'Not available')"
-	@echo "Available versions: $$(tfenv list 2>/dev/null || echo 'tfenv not available')"
+	@echo "Available versions: $$(tenv tf list 2>/dev/null || echo 'tenv not available')"
 
-init: tfenv-use ## Initialize Terraform (with version check)
+init: tenv-use ## Initialize Terraform (with version check)
 	terraform init
 
 plan: ## Plan Terraform deployment
@@ -87,7 +87,7 @@ vars: ## Copy example variables file
 		echo "terraform.tfvars already exists"; \
 	fi
 
-deploy: vars tfenv-install init plan apply connect ## Full deployment: setup vars, install terraform, init, plan, apply, and connect
+deploy: vars tenv-install init plan apply connect ## Full deployment: setup vars, install terraform, init, plan, apply, and connect
 
 # Development targets
 dev-apply: ## Quick apply for development (auto-approve)

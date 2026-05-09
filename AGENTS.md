@@ -1,19 +1,24 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `terraform/aws`: EKS cluster, VPC, IAM, providers; primary entry for AWS.
+- `terraform/aws`: Primary entry for AWS — wrapper that composes the two submodules below into the single-cluster-per-VPC interview workflow.
+  - `terraform/aws/vpc`: VPC + subnets + NAT (no cluster-specific tags). Reusable across multiple clusters.
+  - `terraform/aws/cluster`: EKS cluster + node group + access entries + interviewee IAM + per-cluster `kubernetes.io/cluster/<name>: shared` subnet tags. Takes a VPC's `vpc_id` + subnet ID lists as inputs.
 - `terraform/aws-helm`: Helm add‑ons for EKS (ALB Controller, ExternalDNS, Autoscaler, Metrics Server).
 - `terraform/bootstrap`: Bootstrap helpers (e.g., ECR/GCP bootstrap).
 - `terraform/gcp` and `terraform/gcp/bootstrap`: GKE variant with Makefile‑driven workflow.
+- `scripts/`: Operator wrappers — `zero_to_hero.sh` (apply bootstrap+aws), `destroy.sh` (reverse), `smoke-test.sh` (verify cluster + addons + interviewee access entry), `destroy-nuke.sh` (aws-nuke wrapper).
 - `helm-example/new-chart`: Minimal Helm chart scaffold.
 - `aws-nuke.yaml`: Cleanup tooling; use with extreme caution.
 
 ## Build, Test, and Development Commands
-- Prereqs (macOS/Linux): `brew install awscli tfenv`; then `cd terraform/aws && tfenv install`.
+- Prereqs (macOS/Linux): `brew install awscli tenv`; then `cd terraform/aws && tenv tf install`.
 - AWS EKS: `cd terraform/aws && terraform init ... && terraform apply -var "interviewee_name=<you>"`.
 - Helm add‑ons: `cd terraform/aws-helm && terraform init && terraform apply`.
 - GCP GKE: `cd terraform/gcp && make init && make plan && make apply` (see `make help`).
 - Clean up: `terraform destroy ...` or `aws-nuke run --config aws-nuke.yaml` (only on disposable accounts).
+- One-shot apply / destroy: `./scripts/zero_to_hero.sh -- <interview-name>` and `./scripts/destroy.sh -- <interview-name>`.
+- Verify a freshly-applied stack: `./scripts/smoke-test.sh` (or `--no-helm` if you only ran `terraform/aws`). Exit code = number of failed checks.
 
 ## Coding Style & Naming Conventions
 - Terraform: 2‑space indent; variables `snake_case`; resources/modules lower‑kebab. Run `terraform fmt -recursive` and `terraform validate` before PRs.

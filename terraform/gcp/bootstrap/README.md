@@ -13,14 +13,14 @@ The bootstrap infrastructure creates:
 
 1. Install required tools:
    ```bash
-   brew install tfenv
+   brew install tenv
    brew install google-cloud-sdk
    ```
 
 2. Install Terraform version:
    ```bash
-   tfenv install
-   tfenv use
+   tenv tf install
+   tenv tf use
    ```
 
 3. Authenticate with Google Cloud:

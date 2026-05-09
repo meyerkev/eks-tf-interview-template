@@ -3,7 +3,8 @@ regions:
 - us-east-2
 - global
 
-account-blacklist:
+# Renamed from `account-blacklist` in aws-nuke v3.
+blocklist:
 - "000000000000"
 
 accounts:

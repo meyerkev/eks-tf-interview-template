@@ -9,7 +9,7 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  deletion_protection = false  # Allow cluster modifications
+  deletion_protection = false # Allow cluster modifications
 
   network    = google_compute_network.vpc.name
   subnetwork = google_compute_subnetwork.subnet.name
@@ -50,13 +50,13 @@ resource "google_container_node_pool" "primary_nodes" {
   name       = "${var.cluster_name}-node-pool"
   location   = var.region
   cluster    = google_container_cluster.primary.name
-  node_count = 1  # Reduced from 3 to 1
+  node_count = 1 # Reduced from 3 to 1
 
   node_config {
     preemptible  = true
     machine_type = var.machine_type
-    disk_size_gb = 50  # Explicitly set disk size
-    disk_type    = "pd-standard"  # Use standard persistent disk instead of SSD
+    disk_size_gb = 50            # Explicitly set disk size
+    disk_type    = "pd-standard" # Use standard persistent disk instead of SSD
 
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = google_service_account.gke_service_account.email
@@ -78,7 +78,7 @@ resource "google_container_node_pool" "primary_nodes" {
   # Enable autoscaling
   autoscaling {
     min_node_count = 3
-    max_node_count = max(var.node_count, 3)  # Reduced from 10 to 3
+    max_node_count = max(var.node_count, 3) # Reduced from 10 to 3
   }
 
   # Management configuration

@@ -6,12 +6,12 @@ EKS takes forever to come up, so here's a module to make EKS
 1. On OSX or Linux with brew: 
 
 ```
-brew install awscli tfenv
+brew install awscli tenv
 cd terraform/aws
-tfenv install
+tenv tf install
 ```
 
-On Linux, I still recommend [tfenv](https://github.com/tfutils/tfenv)
+On Linux, I recommend [tenv](https://tofuutils.github.io/tenv/) (a Go-based, actively maintained successor to tfenv that handles tofu/terragrunt/atmos in the same binary).
 
 2. configure aws with an IAM keypair
 
@@ -47,6 +47,57 @@ terraform init \
 ```
 terraform apply -var "interviewee_name=<you>"
 ```
+
+Or from repo root, `./scripts/zero_to_hero.sh -- <interview-name>` runs the bootstrap + cluster apply end-to-end.
+
+After apply, verify it with the bundled smoke test:
+
+```
+./scripts/smoke-test.sh           # full check: cluster + helm addons + interviewee
+./scripts/smoke-test.sh --no-helm # skip helm tier (if you only ran terraform/aws)
+```
+
+The smoke test exits with the number of failed checks.
+
+## Multi-cluster usage (one VPC, N clusters)
+
+`terraform/aws/` is a wrapper that composes two submodules:
+
+- `terraform/aws/vpc/` — the VPC, subnets, NAT, and generic `kubernetes.io/role/{elb,internal-elb}` tags only. No cluster-specific anything.
+- `terraform/aws/cluster/` — one EKS cluster, its node group, EKS access entries, the interviewee IAM user, and the per-cluster `kubernetes.io/cluster/<name>: shared` tags applied via `aws_ec2_tag` resources.
+
+Each cluster owns its own subnet tags, so spinning up multiple clusters in one VPC just means calling the `cluster/` submodule N times against the same VPC outputs. Skip the wrapper and write your own root module:
+
+```hcl
+module "vpc" {
+  source             = "./terraform/aws/vpc"
+  vpc_name           = "shared"
+  vpc_cidr           = "10.0.0.0/16"
+  availability_zones = ["us-east-2a", "us-east-2b", "us-east-2c"]
+}
+
+module "cluster_dev" {
+  source              = "./terraform/aws/cluster"
+  cluster_name        = "dev"
+  cluster_k8s_version = "1.35"
+  region              = "us-east-2"
+  vpc_id              = module.vpc.vpc_id
+  public_subnet_ids   = module.vpc.public_subnet_ids
+  private_subnet_ids  = module.vpc.private_subnet_ids
+}
+
+module "cluster_staging" {
+  source              = "./terraform/aws/cluster"
+  cluster_name        = "staging"
+  cluster_k8s_version = "1.35"
+  region              = "us-east-2"
+  vpc_id              = module.vpc.vpc_id
+  public_subnet_ids   = module.vpc.public_subnet_ids
+  private_subnet_ids  = module.vpc.private_subnet_ids
+}
+```
+
+For the single-cluster interview workflow, the wrapper at `terraform/aws/` does all of this for you and is what `scripts/zero_to_hero.sh` invokes.
 
 ## Install helm (In-progress)
 

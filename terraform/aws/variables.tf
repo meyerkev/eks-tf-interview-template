@@ -19,12 +19,14 @@ variable "vpc_cidr" {
 }
 
 variable "interviewee_name" {
-  type = string
+  description = "If set, create an IAM user with this name and grant it cluster-admin via an EKS access entry. Leave null to skip."
+  type        = string
+  default     = null
 }
 
 variable "cluster_k8s_version" {
   type    = string
-  default = "1.29"
+  default = "1.35"
 }
 
 variable "public_nodes" {
@@ -35,7 +37,7 @@ variable "public_nodes" {
 
 variable "eks_node_instance_type" {
   type    = string
-  default = null  # "m6g.large"
+  default = null # "m6g.large"
 }
 
 variable "target_architecture" {

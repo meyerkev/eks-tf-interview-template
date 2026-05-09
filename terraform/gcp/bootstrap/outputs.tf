@@ -25,7 +25,7 @@ output "terraform_service_account_email" {
 
 output "authentication_note" {
   description = "Authentication instructions for using the service account"
-  value = <<-EOT
+  value       = <<-EOT
 Use one of these authentication methods:
 
 1. For local development:
@@ -51,7 +51,7 @@ output "backend_config" {
 
 output "backend_config_example" {
   description = "Example backend configuration to use in other Terraform configurations"
-  value = <<-EOT
+  value       = <<-EOT
 terraform {
   backend "gcs" {
     bucket = "${google_storage_bucket.terraform_state.name}"

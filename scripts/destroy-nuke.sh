@@ -4,7 +4,8 @@ set -euo pipefail
 # Safe wrapper to run aws-nuke with the repo's aws-nuke.yaml
 # Defaults to DRY RUN. Pass --yes to actually delete (adds --no-dry-run --force).
 
-cd "$(dirname "$0")"
+# Run from the repo root so aws-nuke.yaml resolves correctly.
+cd "$(dirname "$0")/.."
 
 PROFILE="meyerkev-toybox"
 CONFIG="aws-nuke.yaml"
@@ -63,7 +64,9 @@ echo "⚠️  aws-nuke is extremely destructive. Use disposable accounts only."
 echo "Config: $CONFIG"
 echo "Profile: $PROFILE"
 
-cmd=(aws-nuke -c "$CONFIG" --profile "$PROFILE")
+# aws-nuke v3.x (ekristen fork) requires the `run` subcommand and uses
+# `--no-alias-check` when the target account has no IAM alias set.
+cmd=(aws-nuke run --config "$CONFIG" --profile "$PROFILE" --no-alias-check)
 
 if [[ $DRY_RUN -eq 1 ]]; then
   echo "Running in DRY RUN mode (no resources will be deleted)."

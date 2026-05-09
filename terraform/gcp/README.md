@@ -17,7 +17,7 @@ make deploy
 
 # Or step by step:
 make setup           # Enable required APIs
-make tfenv-install   # Install correct Terraform version
+make tenv-install    # Install correct Terraform version
 make init           # Initialize Terraform
 make plan           # Plan the deployment
 make apply          # Apply the configuration
@@ -32,14 +32,12 @@ make connect        # Configure kubectl
    # See: https://cloud.google.com/sdk/docs/install
    ```
 
-2. **tfenv**: Install tfenv for Terraform version management
+2. **tenv**: Install tenv for Terraform version management (Go-based, actively maintained successor to tfenv; handles tofu/terragrunt/atmos in the same binary)
    ```bash
    # On macOS with Homebrew
-   brew install tfenv
-   
-   # On Linux
-   git clone https://github.com/tfutils/tfenv.git ~/.tfenv
-   echo 'export PATH="$HOME/.tfenv/bin:$PATH"' >> ~/.bashrc
+   brew install tenv
+
+   # On Linux: see https://tofuutils.github.io/tenv/#installation
    ```
 
 3. **Make**: Ensure you have `make` installed for using the Makefile targets
@@ -81,8 +79,8 @@ If you prefer manual setup:
 
 4. **Install latest Terraform version and initialize**:
    ```bash
-   tfenv install latest
-   tfenv use latest
+   tenv tf install latest
+   tenv tf use latest
    terraform init
    terraform plan
    terraform apply
@@ -133,14 +131,14 @@ Run `make help` to see all available targets:
 
 - `make login` - Login to GCP and set project (includes quota project setup)
 - `make setup` - Enable required APIs  
-- `make tfenv-install` - Install the latest Terraform version
-- `make tfenv-use` - Switch to the required Terraform version
+- `make tenv-install` - Install the required Terraform version
+- `make tenv-use` - Switch to the required Terraform version
 - `make terraform-version` - Show current and required Terraform versions
 - `make init` - Initialize Terraform (automatically uses correct version)
 - `make plan` - Plan Terraform deployment
 - `make apply` - Apply Terraform configuration
 - `make connect` - Configure kubectl for the cluster
-- `make deploy` - Full deployment (vars + tfenv + init + plan + apply + connect)
+- `make deploy` - Full deployment (vars + tenv + init + plan + apply + connect)
 - `make status` - Show current GCP and Terraform status
 - `make set-quota-project` - Set quota project for Application Default Credentials
 - `make destroy` - Destroy all resources
