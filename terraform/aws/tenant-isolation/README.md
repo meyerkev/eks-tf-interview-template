@@ -92,10 +92,11 @@ tenant-isolation/
 ├── security_groups.tf          # internal + egress SGs
 ├── iam.tf                      # the permissions boundary - the centerpiece
 ├── outputs.tf                  # the consumer API
-└── examples/
-    └── basic/                  # one-tenant smoke + a multi-tenant for_each comment
-        ├── main.tf
-        └── outputs.tf
+└── examples/                   # see examples/README.md
+    ├── README.md               # index of the three examples
+    ├── basic/                  # minimum viable: one tenant, defaults
+    ├── multi-tenant/           # for_each over a map of tenants with mixed connectivity
+    └── with-workload/          # producer/consumer contract made concrete (boundary attached to a role)
 ```
 
 ## Production additions deliberately omitted
