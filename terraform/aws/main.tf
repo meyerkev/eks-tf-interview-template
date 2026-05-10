@@ -36,4 +36,13 @@ module "cluster" {
   min_nodes              = var.min_nodes
   max_nodes              = var.max_nodes
   desired_nodes          = var.desired_nodes
+
+  # Production-knob passthroughs. Wrapper defaults preserve interview-mode
+  # behavior; override these via -var / -var-file for production.
+  endpoint_public_access                  = var.endpoint_public_access
+  endpoint_public_access_cidrs            = var.endpoint_public_access_cidrs
+  cluster_security_group_additional_rules = var.cluster_security_group_additional_rules
+  node_security_group_additional_rules    = var.node_security_group_additional_rules
+  additional_access_entries               = var.additional_access_entries
+  additional_addons                       = var.additional_addons
 }

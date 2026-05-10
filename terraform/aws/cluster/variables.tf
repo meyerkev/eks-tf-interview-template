@@ -74,3 +74,79 @@ variable "desired_nodes" {
   type    = number
   default = 3
 }
+
+# --- Production knobs (defaults are production-safe; the wrapper at
+# terraform/aws/main.tf overrides these to the interview-friendly values). -
+
+variable "endpoint_public_access" {
+  description = "Whether the EKS API server is reachable from outside the VPC. The wrapper module keeps this true; production may want false (kubectl via VPN/bastion only)."
+  type        = bool
+  default     = true
+}
+
+variable "endpoint_public_access_cidrs" {
+  description = "Restrict public-endpoint access to these CIDRs. Default null = AWS default of 0.0.0.0/0. Production should pin to office/jumpbox CIDRs."
+  type        = list(string)
+  default     = null
+}
+
+variable "cluster_security_group_additional_rules" {
+  description = "Extra rules on the EKS-managed cluster (control plane) security group. Shape matches terraform-aws-modules/eks/aws v21. Default empty (production-safe). The wrapper passes the interview-template wide-open rule explicitly."
+  type = map(object({
+    protocol                   = optional(string, "tcp")
+    from_port                  = number
+    to_port                    = number
+    type                       = optional(string, "ingress")
+    description                = optional(string)
+    cidr_blocks                = optional(list(string))
+    ipv6_cidr_blocks           = optional(list(string))
+    prefix_list_ids            = optional(list(string))
+    self                       = optional(bool)
+    source_node_security_group = optional(bool, false)
+    source_security_group_id   = optional(string)
+  }))
+  default = {}
+}
+
+variable "node_security_group_additional_rules" {
+  description = "Extra rules on the EKS-managed node security group. Shape matches terraform-aws-modules/eks/aws v21. The module already adds sane defaults (kubelet, CNI ports, etc.); this is for layering on top."
+  type = map(object({
+    protocol                      = optional(string, "tcp")
+    from_port                     = number
+    to_port                       = number
+    type                          = optional(string, "ingress")
+    description                   = optional(string)
+    cidr_blocks                   = optional(list(string))
+    ipv6_cidr_blocks              = optional(list(string))
+    prefix_list_ids               = optional(list(string))
+    self                          = optional(bool)
+    source_cluster_security_group = optional(bool, false)
+    source_security_group_id      = optional(string)
+  }))
+  default = {}
+}
+
+variable "additional_access_entries" {
+  description = "EKS access entries to merge with the interviewee one. Use this for additional admins, CI principals, etc. Shape matches the EKS module's `access_entries` input."
+  type = map(object({
+    kubernetes_groups = optional(list(string))
+    principal_arn     = string
+    type              = optional(string, "STANDARD")
+    user_name         = optional(string)
+    tags              = optional(map(string), {})
+    policy_associations = optional(map(object({
+      policy_arn = string
+      access_scope = object({
+        namespaces = optional(list(string))
+        type       = string
+      })
+    })), {})
+  }))
+  default = {}
+}
+
+variable "additional_addons" {
+  description = "EKS managed addons to install in addition to vpc-cni / kube-proxy / coredns. Common production additions: eks-pod-identity-agent, aws-ebs-csi-driver, aws-mountpoint-s3-csi-driver. Shape matches the EKS module's `addons` input (set `before_compute = true` if a workload depends on the addon being present at first boot)."
+  type        = any
+  default     = {}
+}

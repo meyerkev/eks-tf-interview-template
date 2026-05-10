@@ -35,7 +35,8 @@ module "eks" {
   name               = var.cluster_name
   kubernetes_version = var.cluster_k8s_version
 
-  endpoint_public_access                   = true
+  endpoint_public_access                   = var.endpoint_public_access
+  endpoint_public_access_cidrs             = var.endpoint_public_access_cidrs
   enable_cluster_creator_admin_permissions = true
 
   # `before_compute = true` is critical for vpc-cni and kube-proxy: in v21 the
@@ -43,7 +44,10 @@ module "eks" {
   # transition to ACTIVE until the kubelets mark Ready, and they can't go
   # Ready without CNI + kube-proxy. CoreDNS can wait until after compute
   # because it just needs a Ready node to schedule on.
-  addons = {
+  #
+  # `var.additional_addons` is merged on top so callers can add
+  # eks-pod-identity-agent / EBS CSI / etc. without forking this submodule.
+  addons = merge({
     vpc-cni = {
       most_recent    = true
       before_compute = true
@@ -55,7 +59,7 @@ module "eks" {
     coredns = {
       most_recent = true
     }
-  }
+  }, var.additional_addons)
 
   vpc_id = var.vpc_id
   # Place the cluster ENIs and node group in either the public or private
@@ -65,21 +69,25 @@ module "eks" {
   # images and reach the EKS control plane.
   subnet_ids = var.public_nodes ? var.public_subnet_ids : var.private_subnet_ids
 
-  # Grant the interviewee admin on the cluster via an EKS access entry.
-  # This replaces the old aws-auth ConfigMap mapping.
-  access_entries = var.interviewee_name != null ? {
-    interviewee = {
-      principal_arn = aws_iam_user.interviewee[0].arn
-      policy_associations = {
-        admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
+  # Access entries replace the old aws-auth ConfigMap. The interviewee gets
+  # one auto-generated when var.interviewee_name is set; var.additional_access_entries
+  # is merged on top so callers can add their own admins / CI principals.
+  access_entries = merge(
+    var.additional_access_entries,
+    var.interviewee_name != null ? {
+      interviewee = {
+        principal_arn = aws_iam_user.interviewee[0].arn
+        policy_associations = {
+          admin = {
+            policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+            access_scope = {
+              type = "cluster"
+            }
           }
         }
       }
-    }
-  } : {}
+    } : {}
+  )
 
   # NOTE: v21 dropped `eks_managed_node_group_defaults`; values that used to
   # live there now have to be inlined per node group.
@@ -108,16 +116,11 @@ module "eks" {
     }
   }
 
-  security_group_additional_rules = {
-    eks_cluster = {
-      type        = "ingress"
-      description = "Never do this in production"
-      from_port   = 0
-      to_port     = 65535
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
+  # Production-safe defaults are empty maps; the wrapper at terraform/aws/
+  # passes interview-friendly values (a wide-open ingress rule on the
+  # cluster SG) explicitly so the interview workflow keeps working.
+  security_group_additional_rules      = var.cluster_security_group_additional_rules
+  node_security_group_additional_rules = var.node_security_group_additional_rules
 }
 
 resource "aws_ssm_parameter" "oidc_provider" {

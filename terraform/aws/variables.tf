@@ -59,3 +59,53 @@ variable "desired_nodes" {
   type    = number
   default = 3
 }
+
+# --- Production-knob passthroughs ------------------------------------------
+# These all forward to the cluster submodule. Defaults here preserve the
+# interview-mode behavior (wide-open cluster SG, public API). Override them
+# from -var / -var-file when you want a tighter setup.
+
+variable "endpoint_public_access" {
+  description = "Whether the EKS API is reachable from outside the VPC. Default true; set false for VPN-only."
+  type        = bool
+  default     = true
+}
+
+variable "endpoint_public_access_cidrs" {
+  description = "Restrict the public EKS API endpoint to these CIDRs. Default null = AWS default 0.0.0.0/0. Pin to office/jumpbox CIDRs in production."
+  type        = list(string)
+  default     = null
+}
+
+variable "cluster_security_group_additional_rules" {
+  description = "Extra rules on the cluster control-plane SG. Default = the interview wide-open rule. Override with `{}` (or your own scoped rules) for production."
+  type        = map(any)
+  default = {
+    eks_cluster = {
+      type        = "ingress"
+      description = "Never do this in production"
+      from_port   = 0
+      to_port     = 65535
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+}
+
+variable "node_security_group_additional_rules" {
+  description = "Extra rules on the node SG. Default empty (the EKS module already adds kubelet/CNI/etc. defaults)."
+  type        = map(any)
+  default     = {}
+}
+
+variable "additional_access_entries" {
+  description = "Extra EKS access entries to merge with the interviewee one - additional admins, CI principals, etc."
+  type        = any
+  default     = {}
+}
+
+variable "additional_addons" {
+  description = "Extra EKS managed addons on top of vpc-cni / kube-proxy / coredns. e.g. eks-pod-identity-agent, aws-ebs-csi-driver."
+  type        = any
+  default     = {}
+}
