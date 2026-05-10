@@ -6,16 +6,18 @@
 # this wrapper and call vpc/ + cluster/ directly from your own root module
 # - see README.md "Multi-cluster usage" for an example.
 
-locals {
-  availability_zones = ["${var.region}a", "${var.region}b", "${var.region}c"]
-}
-
 module "vpc" {
   source = "./vpc"
 
-  vpc_name           = var.vpc_name == null ? "${var.cluster_name}-eks-vpc" : var.vpc_name
-  vpc_cidr           = var.vpc_cidr
-  availability_zones = local.availability_zones
+  vpc_name = var.vpc_name == null ? "${var.cluster_name}-eks-vpc" : var.vpc_name
+  vpc_cidr = var.vpc_cidr
+
+  # Hand the letters/count knobs straight through to VPC; it does the
+  # letters -> "${region}${letter}" expansion. If both are null, VPC's
+  # internal default is 3 AZs (a, b, c).
+  region                    = var.region
+  availability_zone_letters = var.availability_zone_letters
+  availability_zone_count   = var.availability_zone_count
 }
 
 module "cluster" {

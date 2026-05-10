@@ -18,6 +18,22 @@ variable "vpc_cidr" {
   default = "10.0.0.0/16"
 }
 
+# --- AZ selection ---------------------------------------------------------
+# Set at most one of these. If both are null, defaults to 3 AZs (a, b, c).
+# See terraform/aws/vpc/variables.tf for the full description.
+
+variable "availability_zone_letters" {
+  description = "AZ suffix letters (e.g. ['a','c','d']) prepended with var.region. Mutually exclusive with availability_zone_count."
+  type        = list(string)
+  default     = null
+}
+
+variable "availability_zone_count" {
+  description = "Number of AZs to spin up across (2-6); takes the first N letters from a, b, c, d, e, f. Mutually exclusive with availability_zone_letters."
+  type        = number
+  default     = null
+}
+
 variable "interviewee_name" {
   description = "If set, create an IAM user with this name and grant it cluster-admin via an EKS access entry. Leave null to skip."
   type        = string

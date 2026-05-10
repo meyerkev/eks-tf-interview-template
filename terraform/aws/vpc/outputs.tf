@@ -23,5 +23,6 @@ output "database_subnet_ids" {
 }
 
 output "availability_zones" {
-  value = var.availability_zones
+  description = "The resolved list of full AZ names actually used (regardless of which input form the caller used)."
+  value       = local.availability_zones
 }
